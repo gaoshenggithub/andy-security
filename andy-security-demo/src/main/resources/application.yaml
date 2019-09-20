@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:mysql://47.105.177.77:3306/admin_pro?useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: Gaosheng
+  session:
+    store-type: none
+  redis:
+    host: 47.105.177.77
+    port: 6379
+    password: gaosheng
+security:
+  basic:
+    enabled: true
+#andy:
+# security:
+#   browser:
+#     loginPage: /demo-sign.html

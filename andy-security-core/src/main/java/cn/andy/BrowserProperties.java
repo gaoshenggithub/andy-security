@@ -6,4 +6,5 @@ import lombok.Data;
 public class BrowserProperties {
 
     private String loginPage="/index.html";
+    private LoginType loginType = LoginType.JSON;
 }

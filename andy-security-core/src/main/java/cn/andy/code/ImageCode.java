@@ -18,6 +18,10 @@ public class ImageCode {
 
     private LocalDateTime expireTime;
 
+    public boolean isExpried() {
+        return LocalDateTime.now().isAfter(expireTime);
+    }
+
     public ImageCode(BufferedImage image,String code,int expireIn){
         this.image=image;
         this.code=code;

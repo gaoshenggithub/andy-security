@@ -2,6 +2,7 @@ package cn.andy;
 
 import cn.andy.auth.AndyAuthenticationFailureHandler;
 import cn.andy.auth.AndyAuthenticationSuccessHandler;
+import cn.andy.code.VaildateCodeFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
@@ -30,8 +32,10 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
-        http.
+        VaildateCodeFilter vaildateCodeFilter = new VaildateCodeFilter();
+        vaildateCodeFilter.setAuthenticationFailureHandler(andyAuthenticationFailureHandler);
+        http.addFilterBefore(vaildateCodeFilter,
+                UsernamePasswordAuthenticationFilter.class).
                 formLogin().
                 loginPage("/auth/require").
                 loginProcessingUrl("/auth/form").

@@ -17,3 +17,7 @@ security:
 # security:
 #   browser:
 #     loginPage: /demo-sign.html
+andy:
+  security:
+    browser:
+      loginType: JSON

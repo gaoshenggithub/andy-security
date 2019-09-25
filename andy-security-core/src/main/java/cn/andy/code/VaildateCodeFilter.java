@@ -1,6 +1,7 @@
 package cn.andy.code;
 
 import cn.andy.SecurityProperties;
+import cn.andy.properties.ValidateCodeProcessor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -68,7 +69,7 @@ public class VaildateCodeFilter extends OncePerRequestFilter implements Initiali
     }
 
     private void vaildate(ServletWebRequest servletWebRequest) throws ServletRequestBindingException {
-        ImageCode imageCode = (ImageCode) sessionStrategy.getAttribute(servletWebRequest, ValidatedController.SESSION_KEY);
+        ImageCode imageCode = (ImageCode) sessionStrategy.getAttribute(servletWebRequest, ValidateCodeProcessor.SESSION_KEY_PREFIX);
         String code = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "imageCode");
         if (StringUtils.isBlank(code)) {
             throw new VaildateCodeException("验证码不能为空");
@@ -77,13 +78,13 @@ public class VaildateCodeFilter extends OncePerRequestFilter implements Initiali
             throw new VaildateCodeException("验证码不存在");
         }
         if (imageCode.isExpried()) {
-            sessionStrategy.removeAttribute(servletWebRequest, ValidatedController.SESSION_KEY);
+            sessionStrategy.removeAttribute(servletWebRequest, ValidateCodeProcessor.SESSION_KEY_PREFIX);
             throw new VaildateCodeException("验证码已过期");
         }
         if (!StringUtils.equals(imageCode.getCode(), code)) {
             throw new VaildateCodeException("验证码不匹配");
         }
-        sessionStrategy.removeAttribute(servletWebRequest, ValidatedController.SESSION_KEY);
+        sessionStrategy.removeAttribute(servletWebRequest, ValidateCodeProcessor.SESSION_KEY_PREFIX);
     }
 
 }

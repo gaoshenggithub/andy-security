@@ -7,10 +7,9 @@ import lombok.NoArgsConstructor;
 import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ImageCode {
+public class ImageCode extends ValidateCode {
 
     private BufferedImage image;
 
@@ -22,9 +21,13 @@ public class ImageCode {
         return LocalDateTime.now().isAfter(expireTime);
     }
 
-    public ImageCode(BufferedImage image,String code,int expireIn){
-        this.image=image;
-        this.code=code;
-        this.expireTime=LocalDateTime.now().plusSeconds(expireIn);
+    public ImageCode(BufferedImage image, String code, int expireIn) {
+        super(code, expireIn);
+        this.image = image;
+    }
+
+    public ImageCode(BufferedImage image, String code, LocalDateTime expireIn) {
+        super(code, expireIn);
+        this.image = image;
     }
 }

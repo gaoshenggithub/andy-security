@@ -66,7 +66,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                 tokenRepository(persistentTokenRepository()).
                 tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds()).
                 userDetailsService(userDetailsService).and().
-                authorizeRequests().antMatchers("/get/getMap", "/me", "/code/image", "/auth/require", securityProperties.getBrowser().getLoginPage()).permitAll().
+                authorizeRequests().antMatchers("/get/getMap", "/me", "/code/*", "/auth/require", securityProperties.getBrowser().getLoginPage()).permitAll().
                 anyRequest().authenticated().and().csrf().disable();
        /* http.//httpBasic().
                 formLogin().

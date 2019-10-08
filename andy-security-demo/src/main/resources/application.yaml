@@ -26,3 +26,5 @@ andy:
         length: 6
         width: 100 # 验证码参数可配置
         url:
+      sms:
+        url:

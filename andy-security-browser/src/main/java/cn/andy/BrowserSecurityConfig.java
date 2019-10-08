@@ -1,12 +1,18 @@
 package cn.andy;
 
+import cn.andy.auth.AbstractChannelSecurityConfig;
 import cn.andy.auth.AndyAuthenticationFailureHandler;
 import cn.andy.auth.AndyAuthenticationSuccessHandler;
+//import cn.andy.code.SmsCodeFilter;
 import cn.andy.code.VaildateCodeFilter;
+import cn.andy.code.ValidateCodeSecurityConfig;
+import cn.andy.mobile.SmsCodeAuthenticationSecurityConfig;
+import cn.andy.properties.SecurityConstants;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +24,8 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
-public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
+public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
+    //extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecurityProperties securityProperties;
@@ -33,6 +40,12 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Autowired
+    private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+
+    @Autowired
+    private ValidateCodeSecurityConfig validateCodeSecurityConfig;
+
+    @Autowired
     private DataSource dataSource;
 
     @Bean //可以自定义,实现PasswordEncoder
@@ -44,18 +57,50 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-       // tokenRepository.setCreateTableOnStartup(true);
+        // tokenRepository.setCreateTableOnStartup(true);
         return tokenRepository;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        applyPasswordAuthenticationConfig(http);
+
+        http    .apply(validateCodeSecurityConfig)
+                    .and()
+                .apply(smsCodeAuthenticationSecurityConfig)
+                    .and()
+                .rememberMe()
+                    .tokenRepository(persistentTokenRepository())
+                    .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
+                    .userDetailsService(userDetailsService)
+                    .and()
+                .authorizeRequests()
+                .antMatchers(
+
+                        securityProperties.getBrowser().getLoginPage(),
+                        "/code/sms","/code/images").permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .csrf().disable();
+    }
+
+ /*   @Override
+    protected void configure(HttpSecurity http) throws Exception {
         VaildateCodeFilter vaildateCodeFilter = new VaildateCodeFilter();
         vaildateCodeFilter.setAuthenticationFailureHandler(andyAuthenticationFailureHandler);
         vaildateCodeFilter.setSecurityProperties(securityProperties);
         vaildateCodeFilter.afterPropertiesSet();
-        http.addFilterBefore(vaildateCodeFilter,
-                UsernamePasswordAuthenticationFilter.class).
+
+        SmsCodeFilter smsCodeFilter = new SmsCodeFilter();
+        smsCodeFilter.setAuthenticationFailureHandler(andyAuthenticationFailureHandler);
+        smsCodeFilter.setSecurityProperties(securityProperties);
+        smsCodeFilter.afterPropertiesSet();
+
+
+        http.
+                addFilterBefore(smsCodeFilter, UsernamePasswordAuthenticationFilter.class).
+                addFilterBefore(vaildateCodeFilter, UsernamePasswordAuthenticationFilter.class).
                 formLogin().
                 loginPage("/auth/require").
                 loginProcessingUrl("/auth/form").
@@ -67,11 +112,16 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                 tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds()).
                 userDetailsService(userDetailsService).and().
                 authorizeRequests().antMatchers("/get/getMap", "/me", "/code/*", "/auth/require", securityProperties.getBrowser().getLoginPage()).permitAll().
-                anyRequest().authenticated().and().csrf().disable();
-       /* http.//httpBasic().
+                anyRequest().
+                authenticated().
+                and().
+                csrf().
+                disable().
+                apply(smsCodeAuthenticationSecurityConfig);
+        http.//httpBasic().
                 formLogin().
                 and().
                 authorizeRequests().
-                anyRequest().authenticated();*/
-    }
+                anyRequest().authenticated();
+    }*/
 }

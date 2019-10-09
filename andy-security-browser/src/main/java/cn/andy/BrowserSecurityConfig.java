@@ -65,24 +65,42 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
     protected void configure(HttpSecurity http) throws Exception {
         applyPasswordAuthenticationConfig(http);
 
-        http    .apply(validateCodeSecurityConfig)
-                    .and()
-                .apply(smsCodeAuthenticationSecurityConfig)
-                    .and()
+        /*http.apply(validateCodeSecurityConfig).and().rememberMe().
+                tokenRepository(persistentTokenRepository()).
+                tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds()).
+                userDetailsService(userDetailsService).and().
+                authorizeRequests().antMatchers("/get/getMap", "/me", "/code/*", "/auth/require", securityProperties.getBrowser().getLoginPage()).permitAll().
+                anyRequest().
+                authenticated().
+                and().
+                csrf().
+                disable().
+                apply(smsCodeAuthenticationSecurityConfig);
+        http.//httpBasic().
+                formLogin().
+                and().
+                authorizeRequests().
+                anyRequest().authenticated();*/
+        http.apply(validateCodeSecurityConfig)
+                .and()
                 .rememberMe()
-                    .tokenRepository(persistentTokenRepository())
-                    .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
-                    .userDetailsService(userDetailsService)
-                    .and()
+                .tokenRepository(persistentTokenRepository())
+                .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
+                .userDetailsService(userDetailsService)
+                .and()
                 .authorizeRequests()
                 .antMatchers(
-
-                        securityProperties.getBrowser().getLoginPage(),
-                        "/code/sms","/code/images").permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .csrf().disable();
+                        SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
+                        SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM,
+                        SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
+                        SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*",
+                        "/**",
+                        securityProperties.getBrowser().getLoginPage()).permitAll().
+                anyRequest().
+                authenticated().
+                and().
+                csrf().
+                disable().apply(smsCodeAuthenticationSecurityConfig);
     }
 
  /*   @Override

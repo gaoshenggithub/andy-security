@@ -10,6 +10,7 @@ import cn.andy.code.ValidateCode;
 import cn.andy.code.ValidateCodeGenerator;
 import cn.andy.code.ValidateCodeType;
 import cn.andy.properties.ValidateCodeProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
@@ -23,6 +24,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * @author zhailiang
  *
  */
+@Slf4j
 public abstract class AbstractValidateCodeProcessor<C extends ValidateCode> implements ValidateCodeProcessor {
 
 
@@ -60,7 +62,7 @@ public abstract class AbstractValidateCodeProcessor<C extends ValidateCode> impl
     private C generate(ServletWebRequest request) {
         String type = getValidateCodeType(request).toString().toLowerCase();
         String generatorName = type + ValidateCodeGenerator.class.getSimpleName();
-        ValidateCodeGenerator validateCodeGenerator = validateCodeGenerators.get(generatorName);
+        ValidateCodeGenerator validateCodeGenerator = validateCodeGenerators.get(generatorName.replace("Validate", ""));
         if (validateCodeGenerator == null) {
             throw new VaildateCodeException("验证码生成器" + generatorName + "不存在");
         }
@@ -84,6 +86,7 @@ public abstract class AbstractValidateCodeProcessor<C extends ValidateCode> impl
      * @return
      */
     private String getSessionKey(ServletWebRequest request) {
+        log.info(SESSION_KEY_PREFIX + getValidateCodeType(request).toString().toUpperCase());
         return SESSION_KEY_PREFIX + getValidateCodeType(request).toString().toUpperCase();
     }
 

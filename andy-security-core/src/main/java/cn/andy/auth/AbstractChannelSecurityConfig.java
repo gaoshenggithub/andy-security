@@ -10,17 +10,17 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class AbstractChannelSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    protected AuthenticationSuccessHandler imoocAuthenticationSuccessHandler;
+    protected AuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    protected AuthenticationFailureHandler imoocAuthenticationFailureHandler;
+    protected AuthenticationFailureHandler authenticationFailureHandler;
 
     protected void applyPasswordAuthenticationConfig(HttpSecurity http) throws Exception {
         http.formLogin()
                 .loginPage(SecurityConstants.DEFAULT_UNAUTHENTICATION_URL)
                 .loginProcessingUrl(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM)
-                .successHandler(imoocAuthenticationSuccessHandler)
-                .failureHandler(imoocAuthenticationFailureHandler);
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler);
     }
 
 }

@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.social.security.SocialUser;
+import org.springframework.social.security.SocialUserDetails;
+import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,16 +23,26 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class MyUserDetailService implements UserDetailsService {
+public class MyUserDetailService implements UserDetailsService, SocialUserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("登录名: ===>" + username);
+        log.info("表单登录名: ===>" + username);
+        return builderUser(username);
+    }
+
+    @Override
+    public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+        log.info("设计登录名Id: ===>" + userId);
+        return builderUser(userId);
+    }
+
+    private SocialUserDetails builderUser(String account) {
         String encode = passwordEncoder.encode("123456");
         log.info(encode);
-        return new User(username,encode,true,true,true,true, AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+        return new SocialUser(account, encode, true, true, true, true, AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
     }
 }

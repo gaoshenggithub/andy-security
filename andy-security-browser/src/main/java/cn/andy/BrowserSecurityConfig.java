@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.social.security.SpringSocialConfigurer;
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
@@ -44,6 +45,9 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
 
     @Autowired
     private ValidateCodeSecurityConfig validateCodeSecurityConfig;
+
+    @Autowired
+    private SpringSocialConfigurer springSocialConfigurer;
 
     @Autowired
     private DataSource dataSource;
@@ -83,6 +87,7 @@ public class BrowserSecurityConfig extends AbstractChannelSecurityConfig {
                 anyRequest().authenticated();*/
         http.apply(validateCodeSecurityConfig)
                 .and()
+                .apply(springSocialConfigurer).and()
                 .rememberMe()
                 .tokenRepository(persistentTokenRepository())
                 .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())

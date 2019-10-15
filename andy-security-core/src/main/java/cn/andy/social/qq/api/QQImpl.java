@@ -1,5 +1,6 @@
 package cn.andy.social.qq.api;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -24,15 +25,19 @@ public class QQImpl extends AbstractOAuth2ApiBinding implements QQ {
         this.appId = appId;
         String result = getRestTemplate().getForObject(String.format(URL_GET_OPENID, accessToken), String.class);
         log.info("获取参数为===>{}", result);
-        this.openId = StringUtils.substringBetween(result, "\"openId\":\"", "\"}");
+        this.openId = StringUtils.substringBetween(result, "\"openid\":\"", "\"}");
     }
 
     @Override
     public QQUserInfo getUserInfo() {
         String result = getRestTemplate().getForObject(String.format(URL_GET_USERINFO, appId, openId), String.class);
+        result.replace("/", "");
+        log.info(result);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             QQUserInfo qqUserInfo = objectMapper.readValue(result, QQUserInfo.class);
+            return qqUserInfo;
         } catch (IOException e) {
             e.printStackTrace();
         }

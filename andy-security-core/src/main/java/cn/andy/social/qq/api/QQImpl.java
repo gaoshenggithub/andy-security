@@ -37,6 +37,7 @@ public class QQImpl extends AbstractOAuth2ApiBinding implements QQ {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             QQUserInfo qqUserInfo = objectMapper.readValue(result, QQUserInfo.class);
+            qqUserInfo.setOpenId(openId);
             return qqUserInfo;
         } catch (IOException e) {
             e.printStackTrace();
